@@ -1,0 +1,29 @@
+server:
+  port: 8090
+spring:
+  datasource:
+    url: jdbc:postgresql://pg-master.${BASE_NAMESPACE}:5432/demo
+    username: ${PG_USER}
+    password: ${PG_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  thymeleaf:
+    prefix: classpath:/static/html/
+
+mybatis:
+  mapper-locations: classpath:mapping/*.xml
+  config-location: classpath:mybatis-config.xml
+  typeAliasesPackage: com.alkaid.servicea
+  type-handlers-package: com.alkaik.servicea.mybatis.typehandler
+druid:
+  maxActive: 50
+  initialSize: 10
+  maxWait: 60000
+  minIdle: 6
+  timeBetweenEvictionRunsMillis: 60000
+  minEvictableIdleTimeMillis: 30000
+  validationQuery: select 'x'
+  testWhileIdle: true
+  testOnBorrow: false
+  testOnReturn: false
+  poolPreparedStatements: true
+  maxOpenPreparedStatements: 20

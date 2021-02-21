@@ -1,0 +1,42 @@
+apiVersion: v1
+data:
+  create_database.sql: |
+    CREATE DATABASE demo;
+  create_role.sql: |
+    CREATE USER dbuser WITH ENCRYPTED PASSWORD '123456';
+  grant.sql: |
+    GRANT ALL PRIVILEGES ON DATABASE demo TO dbuser;
+    GRANT  ALL PRIVILEGES ON SCHEMA public TO dbuser;
+    GRANT  ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO dbuser;
+    GRANT  ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO dbuser;
+    GRANT  ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO dbuser;
+  tables.sql: |-
+    CREATE TABLE IF NOT EXISTS tbl_user(
+      user_id serial,
+      user_name character varying NOT NULL,
+      age integer NOT NULL,
+      birthday date,
+      CONSTRAINT tbl_user_pk PRIMARY KEY (user_id)
+    );
+  init_data.sql: |
+    INSERT INTO tbl_user(user_name,age,birthday) VALUES('zhangsan',20,'2000-01-01');
+    INSERT INTO tbl_user(user_name,age,birthday) VALUES('lisi',20,'2000-03-12');
+  sql-init-pg.sh: |+
+    #!/usr/bin/env bash
+
+    SHELL_FOLDER=$(cd "$(dirname "$0")";pwd)
+
+    echo "执行pg 初始化"
+    export PGPASSWORD=123456
+
+    psql -h pg-master.base-service -p 5432 -U postgres -f "$SHELL_FOLDER"/create_database.sql
+    psql -h pg-master.base-service -p 5432 -U postgres -f "$SHELL_FOLDER"/create_role.sql
+    psql -h pg-master.base-service -p 5432 -U postgres -f "$SHELL_FOLDER"/tables.sql demo
+    psql -h pg-master.base-service -p 5432 -U postgres -f "$SHELL_FOLDER"/init_data.sql demo
+    psql -h pg-master.base-service -p 5432 -U postgres -d demo -f "$SHELL_FOLDER"/grant.sql
+
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: sql-init-pg
+

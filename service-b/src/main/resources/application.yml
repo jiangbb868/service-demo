@@ -1,0 +1,11 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    clickhouse:
+      url: jdbc:clickhouse://172.17.162.235:8123
+      username: root
+      password: 123456
+      db: test1
+      socketTimeout: 600000

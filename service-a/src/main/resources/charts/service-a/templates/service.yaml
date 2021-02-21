@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Chart.Name }}
+  namespace: {{ .Values.nameSpace }}
+  labels:
+    k8s-app: {{ .Chart.Name }}
+spec:
+#begin 以下为ClusterIP的配置方式，测试通过
+#  type: {{ .Values.service.type }}
+#  ports:
+#    - port: {{ .Values.service.port }}
+#      targetPort: {{ .Values.service.port }}
+#      protocol: TCP
+#      name: http
+#end
+  #begin 以下为NodePort的配置方式 测试通过
+  type: {{ .Values.service.type }}
+  ports:
+  {{- range $portsInfo := .Values.service.serviceports }}
+  - targetPort: {{ $portsInfo.targetPort }}
+    port: {{ $portsInfo.port }}
+    nodePort: {{ $portsInfo.nodePort }}
+    protocol: TCP
+    name: {{ $portsInfo.name }}
+  {{- end}}
+  #end
+  selector:
+    k8s-app: {{ .Chart.Name }}

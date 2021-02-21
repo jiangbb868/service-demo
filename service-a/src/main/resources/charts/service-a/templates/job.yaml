@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Chart.Name }}-pg-datainit-{{ .Release.Revision }}
+spec:
+  template:
+    spec:
+      containers:
+        - name: postgresql-client
+          image: docker.io/ssuareza/postgresql-client:latest
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c", "sh /datainit/sql-init-pg.sh" ]
+          volumeMounts:
+            - name: sql-init-pg
+              mountPath: /datainit
+              readOnly: true
+      volumes:
+      {{- range $volumeInfo := .Values.volumes }}
+      {{- if $volumeInfo.configMap }}
+      - name: {{ $volumeInfo.name | quote }}
+        configMap:
+          name: {{ $volumeInfo.configMap.name | quote }}
+      {{- end}}
+      {{- end}}
+      restartPolicy: Never
+  backoffLimit: 1
